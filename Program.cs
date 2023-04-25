@@ -2,7 +2,7 @@
 {
     static void Main(string[] args)
     {
-        int N = 4, numRequests = 20;
+        int N = 8, numRequests = 20;
         CountdownEvent countdown = new CountdownEvent(numRequests);
 
         HighloadPhotoService.StartWork(N, countdown);
@@ -18,21 +18,22 @@
 
 public class HighloadPhotoService
 {
-    static int maxThreads;
     static CountdownEvent countdown;
     static public void ProcessPhoto(object photo)
     {
         Random random = new Random((int)DateTime.Now.Ticks);
-        Console.WriteLine("Processing...");
-        Thread.Sleep(random.Next(200, 1700));
-        Console.WriteLine("Complete!");
+        Console.WriteLine($"{photo} Processing...");
+        Thread.Sleep(random.Next(2000, 7000));
+        Console.WriteLine($"{photo} Complete!");
         countdown.Signal();
     }
-    static public void StartWork(int N, CountdownEvent Countdown)
+    static public void StartWork(int maxThreads, CountdownEvent Countdown)
     {
-        maxThreads = N;
         countdown = Countdown;
-        ThreadPool.SetMaxThreads(maxThreads, maxThreads);
+        if (ThreadPool.SetMaxThreads(maxThreads, maxThreads))
+            Console.WriteLine("Successful start of load sharing mechanism");
+        else
+            Console.WriteLine($"Something went wrong, when started the load sharing mechanism");
     }
 
     static public void CreateRequest(object photo)
